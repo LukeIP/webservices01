@@ -1,0 +1,32 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./city_liveability.db
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - ENVIRONMENT=production
+    volumes:
+      - db-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mcp-server:
+    build: .
+    command: ["python", "-m", "mcp_server.server"]
+    environment:
+      - DATABASE_URL=sqlite:///./city_liveability.db
+      - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
+    volumes:
+      - db-data:/app/data
+    depends_on:
+      api:
+        condition: service_healthy
+
+volumes:
+  db-data:
