@@ -1,0 +1,59 @@
+/* ===== Layout ===== */
+body { background: #f5f7fa; min-height: 100vh; }
+.page-content { display: none; }
+.page-content.active { display: block; }
+
+/* ===== Navbar ===== */
+.navbar-brand { font-weight: 700; letter-spacing: .5px; }
+.nav-link { cursor: pointer; }
+.nav-link.active { font-weight: 600; }
+
+/* ===== Cards ===== */
+.stat-card { border: none; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.06); transition: transform .15s; }
+.stat-card:hover { transform: translateY(-2px); }
+.stat-card .display-6 { font-weight: 700; }
+.stat-card .card-icon { font-size: 2rem; opacity: .6; }
+
+/* ===== Score gauge ===== */
+.score-badge { display: inline-flex; align-items: center; justify-content: center;
+  width: 60px; height: 60px; border-radius: 50%; font-size: 1.1rem; font-weight: 700; color: #fff; }
+.score-badge.excellent { background: #198754; }
+.score-badge.good      { background: #20c997; }
+.score-badge.average    { background: #ffc107; color: #333; }
+.score-badge.poor       { background: #fd7e14; }
+.score-badge.bad        { background: #dc3545; }
+
+.score-bar { height: 8px; border-radius: 4px; background: #e9ecef; overflow: hidden; }
+.score-bar-fill { height: 100%; border-radius: 4px; transition: width .4s ease; }
+
+/* ===== Tables ===== */
+.table-hover tbody tr { cursor: pointer; }
+.table th { font-weight: 600; font-size: .85rem; text-transform: uppercase; letter-spacing: .5px; color: #6c757d; }
+
+/* ===== City detail tabs ===== */
+.detail-tabs .nav-link { font-size: .9rem; }
+
+/* ===== Query page ===== */
+#query-input { font-size: 1.05rem; }
+.sql-block { background: #1e1e2e; color: #cdd6f4; border-radius: 8px;
+  padding: 1rem; font-family: 'Fira Code', monospace; font-size: .85rem; overflow-x: auto; }
+
+/* ===== Toast ===== */
+.toast.bg-success { --bs-bg-opacity: 1; }
+.toast.bg-danger  { --bs-bg-opacity: 1; }
+
+/* ===== Chart container ===== */
+.chart-container { position: relative; height: 350px; }
+
+/* ===== Auth required hint ===== */
+.auth-only { display: none; }
+body.logged-in .auth-only { display: inline-block; }
+body.logged-in .guest-only { display: none; }
+
+/* ===== Loading spinner ===== */
+.spinner-overlay { display: flex; align-items: center; justify-content: center; padding: 3rem; }
+
+/* ===== Misc ===== */
+.clickable { cursor: pointer; }
+.text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.badge-category { font-size: .8rem; }

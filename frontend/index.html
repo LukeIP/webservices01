@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>City Liveability Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="/static/css/style.css" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===================== NAVBAR ===================== -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#" data-page="dashboard"><i class="bi bi-buildings"></i> City Liveability</a>
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainNav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="mainNav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item"><a class="nav-link active" href="#" data-page="dashboard"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-page="cities"><i class="bi bi-geo-alt"></i> Cities</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-page="analytics"><i class="bi bi-graph-up"></i> Analytics</a></li>
+        <li class="nav-item"><a class="nav-link" href="#" data-page="query"><i class="bi bi-journal-text"></i> Narrative</a></li>
+      </ul>
+
+      <!-- Auth: guest -->
+      <div id="auth-guest" class="d-flex gap-2">
+        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#loginModal">Log In</button>
+        <button class="btn btn-light btn-sm" data-bs-toggle="modal" data-bs-target="#registerModal">Register</button>
+      </div>
+
+      <!-- Auth: logged in -->
+      <div id="auth-logged-in" class="d-none d-flex align-items-center gap-2">
+        <span class="text-light"><i class="bi bi-person-circle"></i> <span id="auth-user-name"></span></span>
+        <button id="btn-logout" class="btn btn-outline-light btn-sm">Log Out</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<main class="container-fluid py-4 px-lg-5">
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div id="page-dashboard" class="page-content active">
+    <h2 class="mb-4">Dashboard</h2>
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="card stat-card h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <span class="card-icon text-success"><i class="bi bi-heart-pulse"></i></span>
+            <div>
+              <small class="text-muted">API Status</small>
+              <div id="health-status"></div>
+              <small class="text-muted" id="health-version"></small>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card stat-card h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <span class="card-icon text-primary"><i class="bi bi-buildings"></i></span>
+            <div>
+              <small class="text-muted">Total Cities</small>
+              <p class="display-6 mb-0" id="city-count">—</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="card stat-card h-100">
+          <div class="card-body d-flex align-items-center gap-3">
+            <span class="card-icon text-warning"><i class="bi bi-lightning"></i></span>
+            <div>
+              <small class="text-muted">Quick Actions</small>
+              <div class="d-flex flex-wrap gap-2 mt-1">
+                <a href="#" class="btn btn-sm btn-outline-primary" data-page="cities">Browse Cities</a>
+                <a href="#" class="btn btn-sm btn-outline-primary" data-page="analytics">Analytics</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <h5>Featured Cities</h5>
+    <div id="dashboard-cities" class="row g-3"></div>
+  </div>
+
+  <!-- ===================== CITIES LIST ===================== -->
+  <div id="page-cities" class="page-content">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3 gap-2">
+      <h2 class="mb-0">Cities</h2>
+      <div class="d-flex gap-2">
+        <select id="filter-region" class="form-select form-select-sm" style="width:auto">
+          <option value="">All Regions</option>
+        </select>
+        <button class="btn btn-primary btn-sm auth-only" onclick="CitiesPage.openAdd()"><i class="bi bi-plus-lg"></i> Add City</button>
+      </div>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-hover align-middle">
+        <thead><tr><th>#</th><th>Name</th><th>Region</th><th>Population</th><th>Coordinates</th><th class="auth-only">Actions</th></tr></thead>
+        <tbody id="cities-tbody"></tbody>
+      </table>
+    </div>
+    <div id="cities-pagination"></div>
+  </div>
+
+  <!-- ===================== CITY DETAIL ===================== -->
+  <div id="page-city-detail" class="page-content">
+    <div id="city-detail-content"></div>
+  </div>
+
+  <!-- ===================== ANALYTICS ===================== -->
+  <div id="page-analytics" class="page-content">
+    <h2 class="mb-3">Analytics</h2>
+    <ul class="nav nav-tabs mb-3" id="analytics-tabs">
+      <li class="nav-item"><a class="nav-link active" href="#" data-tab="compare">Compare Cities</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-tab="trends">Trends</a></li>
+      <li class="nav-item"><a class="nav-link" href="#" data-tab="anomalies">Anomalies</a></li>
+    </ul>
+
+    <!-- Compare tab -->
+    <div id="tab-compare" class="analytics-tab active">
+      <div class="row mb-3">
+        <div class="col-md-6">
+          <label class="form-label">Select cities to compare (hold Ctrl/Cmd)</label>
+          <select id="compare-cities" class="form-select" multiple size="6"></select>
+        </div>
+        <div class="col-md-6 d-flex align-items-end">
+          <button id="btn-compare" class="btn btn-primary">Compare</button>
+        </div>
+      </div>
+      <div id="compare-results"></div>
+    </div>
+
+    <!-- Trends tab -->
+    <div id="tab-trends" class="analytics-tab d-none">
+      <div class="row mb-3 g-2">
+        <div class="col-md-4">
+          <label class="form-label">City</label>
+          <select id="trend-city" class="form-select"><option value="">— Select —</option></select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Metric</label>
+          <select id="trend-metric" class="form-select">
+            <option value="aqi">AQI</option>
+            <option value="avg_temp_c">Avg Temperature</option>
+            <option value="humidity_pct">Humidity</option>
+            <option value="precipitation_mm">Precipitation</option>
+          </select>
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Period</label>
+          <select id="trend-period" class="form-select">
+            <option value="3m">3 months</option>
+            <option value="6m" selected>6 months</option>
+            <option value="12m">12 months</option>
+            <option value="24m">24 months</option>
+          </select>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+          <button id="btn-trend" class="btn btn-primary w-100">Show</button>
+        </div>
+      </div>
+      <div id="trend-results"></div>
+    </div>
+
+    <!-- Anomalies tab -->
+    <div id="tab-anomalies" class="analytics-tab d-none">
+      <div class="row mb-3 g-2">
+        <div class="col-md-5">
+          <label class="form-label">City</label>
+          <select id="anomaly-city" class="form-select"><option value="">— Select —</option></select>
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Z-Score Threshold</label>
+          <input id="anomaly-threshold" type="number" class="form-control" value="2.0" min="1" max="5" step="0.1">
+        </div>
+        <div class="col-md-3 d-flex align-items-end">
+          <button id="btn-anomaly" class="btn btn-primary w-100">Detect</button>
+        </div>
+      </div>
+      <div id="anomaly-results"></div>
+    </div>
+  </div>
+
+  <!-- ===================== NARRATIVE ===================== -->
+  <div id="page-query" class="page-content">
+    <h2 class="mb-3">City Narrative</h2>
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="card">
+          <div class="card-body">
+            <h6><i class="bi bi-journal-text"></i> Generate City Narrative</h6>
+            <p class="text-muted small">Select a city to generate a summary report based on its liveability scores and data.</p>
+            <select id="narrative-city" class="form-select mb-3"><option value="">— Select city —</option></select>
+            <button id="btn-narrative" class="btn btn-primary w-100">Generate Narrative</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div id="narrative-result"></div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Log In</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="form-login">
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Username</label><input name="username" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Password</label><input name="password" type="password" class="form-control" required></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="submit">Log In</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Register</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="form-register">
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Username</label><input name="username" class="form-control" minlength="3" maxlength="50" required></div>
+        <div class="mb-3"><label class="form-label">Email</label><input name="email" type="email" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Password</label><input name="password" type="password" class="form-control" minlength="8" maxlength="128" required></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="submit">Register</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- City Modal (Add/Edit) -->
+<div class="modal fade" id="cityModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="cityModalLabel">Add City</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="form-city">
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Name</label><input id="city-name" name="name" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Region</label><input id="city-region" name="region" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Country</label><input id="city-country" name="country" class="form-control" value="United Kingdom"></div>
+        <div class="row">
+          <div class="col-6 mb-3"><label class="form-label">Latitude</label><input id="city-lat" name="latitude" type="number" step="any" min="-90" max="90" class="form-control" required></div>
+          <div class="col-6 mb-3"><label class="form-label">Longitude</label><input id="city-lng" name="longitude" type="number" step="any" min="-180" max="180" class="form-control" required></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Population (optional)</label><input id="city-pop" name="population" type="number" min="0" class="form-control"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="submit">Save</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Observation Modal -->
+<div class="modal fade" id="observationModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title" id="observationModalLabel">Add Observation</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="form-observation">
+      <input type="hidden" id="obs-id" name="obs_id">
+      <div class="modal-body">
+        <div class="mb-3">
+          <label class="form-label">Category</label>
+          <select id="obs-category" name="category" class="form-select" required>
+            <option value="air_quality">Air Quality</option>
+            <option value="noise">Noise</option>
+            <option value="safety">Safety</option>
+            <option value="cleanliness">Cleanliness</option>
+            <option value="green_space">Green Space</option>
+            <option value="transport">Transport</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+        <div class="mb-3"><label class="form-label">Value (0–100)</label><input id="obs-value" name="value" type="number" min="0" max="100" step="0.1" class="form-control" required></div>
+        <div class="mb-3"><label class="form-label">Note (optional)</label><textarea id="obs-note" name="note" class="form-control" rows="2" maxlength="500"></textarea></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="submit">Save</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Climate Metric Modal -->
+<div class="modal fade" id="climateModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Add Climate Metric</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="form-climate">
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Date</label><input name="date" type="date" class="form-control" required></div>
+        <div class="row">
+          <div class="col-6 mb-3"><label class="form-label">Avg Temp (°C)</label><input name="avg_temp_c" type="number" step="0.1" class="form-control"></div>
+          <div class="col-6 mb-3"><label class="form-label">AQI</label><input name="aqi" type="number" step="0.1" min="0" class="form-control"></div>
+        </div>
+        <div class="row">
+          <div class="col-6 mb-3"><label class="form-label">Humidity (%)</label><input name="humidity_pct" type="number" step="0.1" min="0" max="100" class="form-control"></div>
+          <div class="col-6 mb-3"><label class="form-label">Precipitation (mm)</label><input name="precipitation_mm" type="number" step="0.1" min="0" class="form-control"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Source (optional)</label><input name="source" class="form-control"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="submit">Save</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Socioeconomic Metric Modal -->
+<div class="modal fade" id="socioModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Add Socioeconomic Metric</h5><button class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form id="form-socio">
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Year</label><input name="year" type="number" min="1900" max="2100" class="form-control" required></div>
+        <div class="row">
+          <div class="col-6 mb-3"><label class="form-label">Median Rent (£)</label><input name="median_rent_gbp" type="number" step="0.01" min="0" class="form-control"></div>
+          <div class="col-6 mb-3"><label class="form-label">Green Space (%)</label><input name="green_space_pct" type="number" step="0.1" min="0" max="100" class="form-control"></div>
+        </div>
+        <div class="row">
+          <div class="col-6 mb-3"><label class="form-label">Crime Index</label><input name="crime_index" type="number" step="0.1" min="0" class="form-control"></div>
+          <div class="col-6 mb-3"><label class="form-label">Avg Commute (min)</label><input name="avg_commute_min" type="number" step="0.1" min="0" class="form-control"></div>
+        </div>
+        <div class="mb-3"><label class="form-label">Source (optional)</label><input name="source" class="form-control"></div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-primary" type="submit">Save</button></div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Rent Submission Modal -->
+<div class="modal fade" id="rentModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header">
+      <h5 class="modal-title"><i class="bi bi-house"></i> Report Your Rent</h5>
+      <button class="btn-close" data-bs-dismiss="modal"></button>
+    </div>
+    <form id="form-rent">
+      <div class="modal-body">
+        <p class="text-muted small mb-3">
+          Submit your current monthly rent to contribute to the crowdsourced median for this city.
+          You can update your submission at any time — one entry per year.
+        </p>
+        <div class="mb-3">
+          <label class="form-label fw-semibold">Monthly Rent (£)</label>
+          <div class="input-group">
+            <span class="input-group-text">£</span>
+            <input id="rent-amount" name="rent_amount_gbp" type="number" step="1" min="1" max="20000"
+              class="form-control" placeholder="e.g. 1200" required>
+          </div>
+          <div class="form-text">Enter your total monthly rent before bills.</div>
+        </div>
+        <div id="rent-current-median" class="alert alert-info d-none py-2 small"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Submit</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+
+<!-- Toast -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="app-toast" class="toast align-items-center text-white border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body"></div>
+      <button class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/app.js"></script>
+</body>
+</html>
