@@ -133,7 +133,7 @@ webservices01/
 ### 1. Clone and set up
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/LukeIP/webservices01
 cd webservices01
 python -m venv venv
 source venv/bin/activate for macOS/linux   # macOS/Linux
@@ -314,7 +314,7 @@ Once deployed to Railway, the MCP server is co-hosted with the REST API at `/mcp
 {
   "mcpServers": {
     "city-liveability": {
-      "url": "https://<your-railway-app>.up.railway.app/mcp/sse"
+      "url": "https://webservices01-production.up.railway.app//mcp/sse"
     }
   }
 }
