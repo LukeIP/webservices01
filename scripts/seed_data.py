@@ -158,9 +158,9 @@ def fetch_crime_index(lat: float, lon: float) -> float:
     Queries 12 months of street-level crimes within ~1 mile of the city centre.
     Source: https://data.police.uk/docs/method/crime-street/
 
-    Normalisation: monthly_avg / 8  capped at 100.
-    At ~800 crimes/month (very high-density area) → index 100.
-    At ~200 crimes/month (typical city centre)    → index 25.
+    Normalisation: monthly_avg / 15  capped at 100.
+    At ~1500 crimes/month (very high-density area) → index 100.
+    At ~200 crimes/month (typical city centre)     → index 13.
     """
     import httpx
 
@@ -190,7 +190,7 @@ def fetch_crime_index(lat: float, lon: float) -> float:
         return None  # No data available (e.g. Belfast — PSNI not on data.police.uk)
 
     monthly_avg = total_crimes / months_fetched
-    return min(100.0, round(monthly_avg / 8.0, 1))
+    return min(100.0, round(monthly_avg / 15.0, 1))
 
 
 def seed():
