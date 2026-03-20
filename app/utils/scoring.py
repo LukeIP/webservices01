@@ -24,7 +24,7 @@ def normalise_temp(avg_temp: float) -> float:
     return max(0, 100 - deviation * 5)
 
 
-def normalise_rent(rent: float, max_rent: float = 2500.0) -> float:
+def normalise_rent(rent: float, max_rent: float = 4000.0) -> float:
     """Normalise rent to affordability score (lower rent = higher score)."""
     if rent <= 0:
         return 100.0
