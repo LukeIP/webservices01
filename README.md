@@ -445,9 +445,10 @@ The generated documentation is also available in the `docs/` directory.
 |-------------|----------|
 | Source code | This repository |
 | README.md | [README.md](README.md) |
-| API documentation | [docs/api_documentation.md](docs/api_documentation.md) |
+| API documentation (PDF) | [docs/api_documentation.pdf](docs/api_documentation.pdf) |
 | OpenAPI specification | [docs/openapi.json](docs/openapi.json) |
-| Technical report | [docs/technical_report.md](docs/technical_report.md) |
+| Technical report (PDF) | [docs/technical_report.pdf](docs/technical_report.pdf) |
+| Presentation slides | [Google Slides](https://docs.google.com/presentation/d/1X7gR_xAH7RzQZcBK50WckjgdNCETrfwiicAUH3EYhUI/edit?usp=sharing) |
 | Swagger UI | `/docs` (when server is running) |
 | Test suite | [tests/](tests/) — 228 tests |
 
